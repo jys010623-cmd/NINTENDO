@@ -116,31 +116,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* 5. 사이트 검색 — 검색 아이콘 클릭 시 오버레이 */
   var SEARCH_INDEX = [
-    /* 본편 타이틀 (발매순) */
-    { tag: '타이틀', title: '젤다의 전설', desc: '1986 · 패미컴 — 시리즈의 위대한 시작', url: 'index.html#history' },
-    { tag: '타이틀', title: '링크의 모험', desc: '1987 · 패미컴 — 횡스크롤 액션 RPG 외전적 2편', url: 'index.html#history' },
-    { tag: '타이틀', title: '신들의 트라이포스', desc: '1991 · 슈퍼패미컴 — 빛과 어둠의 평행 세계', url: 'index.html#history' },
-    { tag: '타이틀', title: '꿈꾸는 섬', desc: '1993 원작 / 2019 Switch 리메이크', url: 'detail.html?game=dream' },
-    { tag: '타이틀', title: '시간의 오카리나', desc: '1998 · N64 — 메타크리틱 99점의 신화', url: 'index.html#history' },
-    { tag: '타이틀', title: '무쥬라의 가면', desc: '2000 · N64 — 3일의 시간을 되감는 이색작', url: 'index.html#history' },
-    { tag: '타이틀', title: '바람의 택트', desc: '2002 · 게임큐브 — 대양을 항해하는 툰셰이딩 모험', url: 'index.html#history' },
-    { tag: '타이틀', title: '이상한 모자', desc: '2004 · GBA — 소인 세계를 오가는 모험', url: 'index.html#history' },
-    { tag: '타이틀', title: '황혼의 공주', desc: '2006 · Wii — 울프 링크의 다크 판타지', url: 'index.html#history' },
-    { tag: '타이틀', title: '몽환의 모래시계', desc: '2007 · NDS — 터치펜으로 항해하는 모험', url: 'index.html#history' },
-    { tag: '타이틀', title: '대지의 기적', desc: '2009 · NDS — 기차로 달리는 하이랄', url: 'index.html#history' },
-    { tag: '타이틀', title: '스카이워드 소드 HD', desc: '2011 원작 / 2021 Switch HD — 마스터 소드 탄생의 비화', url: 'detail.html?game=skyward' },
-    { tag: '타이틀', title: '신들의 트라이포스 2', desc: '2013 · 3DS — 벽화가 되어 이동하는 신감각 퍼즐', url: 'index.html#history' },
-    { tag: '타이틀', title: '트라이포스 삼총사', desc: '2015 · 3DS — 3인 협동 멀티플레이', url: 'index.html#history' },
-    { tag: '타이틀', title: '브레스 오브 더 와일드', desc: '2017 · Switch — 오픈월드의 표준을 바꾼 신화', url: 'detail.html?game=botw' },
-    { tag: '타이틀', title: '티어스 오브 더 킹덤', desc: '2023 · Switch — 하늘과 지저의 한계 없는 크래프팅', url: 'detail.html?game=totk' },
-    { tag: '타이틀', title: '지혜의 투영', desc: '2024 · Switch — 공주가 이끄는 최신 패러다임', url: 'detail.html?game=echoes' },
-    /* 젤다무쌍 시리즈 (본편 외전) */
-    { tag: '타이틀', title: '젤다무쌍 하이랄의 전설들 DX', desc: '2018 · Switch — 올스타 무쌍 액션 완전판', url: 'index.html#spinoff' },
-    { tag: '타이틀', title: '젤다무쌍 대재앙의 시대', desc: '2020 · Switch — 대재앙 100년 전의 전쟁 서사', url: 'index.html#spinoff' },
-    { tag: '타이틀', title: '젤다무쌍 봉인 전기', desc: '2025 · Switch 2 — 태고의 봉인 전쟁', url: 'index.html#spinoff' },
-    /* DLC (추가 콘텐츠) */
-    { tag: 'DLC', title: '브레스 오브 더 와일드 익스팬션 패스', desc: '1탄 시련의 패자 · 2탄 영걸들의 노래', url: 'detail.html?game=botw' },
-    { tag: 'DLC', title: '대재앙의 시대 익스팬션 패스', desc: '젤다무쌍 대재앙의 시대 추가 콘텐츠', url: 'index.html#spinoff' }
+    /* 본편 타이틀 */
+    { tag: '타이틀', year: 1986, title: '젤다의 전설', desc: '1986 · 패미컴 — 시리즈의 위대한 시작', url: 'index.html#history' },
+    { tag: '타이틀', year: 1987, title: '젤다의 전설 2 링크의 모험', desc: '1987 · 패미컴 — 횡스크롤 액션 RPG 외전적 2편', url: 'index.html#history' },
+    { tag: '타이틀', year: 1991, title: '젤다의 전설 신들의 트라이포스', desc: '1991 · 슈퍼패미컴 — 빛과 어둠의 평행 세계', url: 'index.html#history' },
+    { tag: '타이틀', year: 1993, title: '젤다의 전설 꿈꾸는 섬', desc: '1993 원작 / 2019 Switch 리메이크', url: 'detail.html?game=dream' },
+    { tag: '타이틀', year: 1998, title: '젤다의 전설 시간의 오카리나', desc: '1998 · N64 — 메타크리틱 99점의 신화', url: 'index.html#history' },
+    { tag: '타이틀', year: 2000, title: '젤다의 전설 무쥬라의 가면', desc: '2000 · N64 — 3일의 시간을 되감는 이색작', url: 'index.html#history' },
+    { tag: '타이틀', year: 2001, title: '젤다의 전설 이상한 나무열매 (시공의 장·대지의 장)', desc: '2001 · GBC — 두 작품 연동 패스워드 모험', url: 'index.html#history' },
+    { tag: '타이틀', year: 2002, title: '젤다의 전설 바람의 지휘봉', desc: '2002 · 게임큐브 — 대양을 항해하는 툰셰이딩 모험', url: 'index.html#history' },
+    { tag: '타이틀', year: 2002, title: '젤다의 전설 4개의 검', desc: '2002 · GBA — 시리즈 첫 멀티플레이 협동 외전', url: 'index.html#history' },
+    { tag: '타이틀', year: 2004, title: '젤다의 전설 이상한 모자', desc: '2004 · GBA — 소인 세계를 오가는 모험', url: 'index.html#history' },
+    { tag: '타이틀', year: 2004, title: '젤다의 전설 4개의 검+', desc: '2004 · 게임큐브 — 4인 협동 액션 어드벤처', url: 'index.html#history' },
+    { tag: '타이틀', year: 2006, title: '젤다의 전설 황혼의 공주', desc: '2006 · Wii — 울프 링크의 다크 판타지', url: 'index.html#history' },
+    { tag: '타이틀', year: 2007, title: '젤다의 전설 몽환의 모래시계', desc: '2007 · NDS — 터치펜으로 항해하는 모험', url: 'index.html#history' },
+    { tag: '타이틀', year: 2009, title: '젤다의 전설 대지의 기적', desc: '2009 · NDS — 기차로 달리는 하이랄', url: 'index.html#history' },
+    { tag: '타이틀', year: 2011, title: '젤다의 전설 스카이워드 소드 HD', desc: '2011 원작 / 2021 Switch HD — 마스터 소드 탄생의 비화', url: 'detail.html?game=skyward' },
+    { tag: '타이틀', year: 2013, title: '젤다의 전설 신들의 트라이포스 2', desc: '2013 · 3DS — 벽화가 되어 이동하는 신감각 퍼즐', url: 'index.html#history' },
+    { tag: '타이틀', year: 2015, title: '젤다의 전설 트라이포스 삼총사', desc: '2015 · 3DS — 3인 협동 멀티플레이', url: 'index.html#history' },
+    { tag: '타이틀', year: 2017, title: '젤다의 전설 브레스 오브 더 와일드', desc: '2017 · Switch — 오픈월드의 표준을 바꾼 신화', url: 'detail.html?game=botw' },
+    { tag: '타이틀', year: 2023, title: '젤다의 전설 티어스 오브 더 킹덤', desc: '2023 · Switch — 하늘과 지저의 한계 없는 크래프팅', url: 'detail.html?game=totk' },
+    { tag: '타이틀', year: 2024, title: '젤다의 전설 지혜의 투영', desc: '2024 · Switch — 공주가 이끄는 최신 패러다임', url: 'detail.html?game=echoes' },
+    /* 외전 · 스핀오프 */
+    { tag: '타이틀', year: 2019, title: '케이던스 오브 하이랄', desc: '2019 · Switch — 네크로댄서 크로스오버 리듬 액션', url: 'index.html#spinoff' },
+    { tag: '타이틀', year: 2018, title: '젤다무쌍 하이랄 올스타즈 DX', desc: '2018 · Switch — 올스타 무쌍 액션 완전판', url: 'index.html#spinoff' },
+    { tag: '타이틀', year: 2020, title: '젤다무쌍 대재앙의 시대', desc: '2020 · Switch — 대재앙 100년 전의 전쟁 서사', url: 'index.html#spinoff' },
+    { tag: '타이틀', year: 2025, title: '젤다무쌍 봉인전기', desc: '2025 · Switch 2 — 태고의 봉인 전쟁', url: 'index.html#spinoff' },
+    /* DLC — 브레스 오브 더 와일드 */
+    { tag: 'DLC', year: 2017, title: '젤다의 전설 브레스 오브 더 와일드 익스팬션 패스', desc: '2017 · BotW 추가 콘텐츠 2종 통합 패스', url: 'detail.html?game=botw' },
+    { tag: 'DLC', year: 2017, title: '젤다의 전설 브레스 오브 더 와일드 시련의 패자', desc: 'BotW 익스팬션 1탄 — 마스터 모드 · 시련의 사당 · 검의 시련', url: 'detail.html?game=botw' },
+    { tag: 'DLC', year: 2017, title: '젤다의 전설 브레스 오브 더 와일드 영걸들의 노래', desc: 'BotW 익스팬션 2탄 — 4영걸 추가 시나리오 · 마스터 사이클 제로', url: 'detail.html?game=botw' },
+    /* DLC — 젤다무쌍 대재앙의 시대 */
+    { tag: 'DLC', year: 2021, title: '젤다무쌍 대재앙의 시대 익스팬션 패스', desc: '2021 · 대재앙의 시대 추가 콘텐츠 통합 패스', url: 'index.html#spinoff' },
+    { tag: 'DLC', year: 2021, title: '젤다무쌍 대재앙의 시대 고대유물의 고동', desc: '대재앙의 시대 1탄 — 역전의 가디언 등 신규 플레이어블', url: 'index.html#spinoff' },
+    { tag: 'DLC', year: 2021, title: '젤다무쌍 대재앙의 시대 추억의 수호자', desc: '대재앙의 시대 2탄 — 신규 시나리오 · 추가 무기', url: 'index.html#spinoff' },
+    /* DLC — 젤다무쌍 (2014, 영웅들의 시대 시즌 패스 / DX 수록) */
+    { tag: 'DLC', year: 2014, title: '젤다무쌍 하이랄 올스타즈 마스터 퀘스트 팩', desc: '젤다무쌍 — 추가 어드벤처 맵 · 신규 무기 (DX 수록)', url: 'index.html#spinoff' },
+    { tag: 'DLC', year: 2014, title: '젤다무쌍 하이랄 올스타즈 황혼의 공주 팩', desc: '젤다무쌍 — 트와일라잇 프린세스 테마 캐릭터 · 무기 (DX 수록)', url: 'index.html#spinoff' },
+    { tag: 'DLC', year: 2015, title: '젤다무쌍 하이랄 올스타즈 무쥬라의 가면 팩', desc: '젤다무쌍 — 무쥬라의 가면 테마 캐릭터 · 맵 (DX 수록)', url: 'index.html#spinoff' },
+    { tag: 'DLC', year: 2015, title: '젤다무쌍 하이랄 올스타즈 보스 팩', desc: '젤다무쌍 — 가논의 분노 등 신규 모드 · 캐릭터 (DX 수록)', url: 'index.html#spinoff' },
+    /* DLC — 케이던스 오브 하이랄 */
+    { tag: 'DLC', year: 2019, title: '케이던스 오브 하이랄 캐릭터 팩', desc: '추가 플레이어블 캐릭터 다수', url: 'index.html#spinoff' },
+    { tag: 'DLC', year: 2019, title: '케이던스 오브 하이랄 멜로디 팩', desc: '케이던스 오브 하이랄 — 추가 BGM 어레인지', url: 'index.html#spinoff' },
+    { tag: 'DLC', year: 2020, title: '케이던스 오브 하이랄 가면의 교향곡', desc: '케이던스 오브 하이랄 — 스컬 키드가 주인공인 신규 스토리', url: 'index.html#spinoff' }
   ];
 
   var searchBtn = document.querySelector('.nav-search');
@@ -154,17 +172,41 @@ document.addEventListener('DOMContentLoaded', function () {
           '<input type="text" placeholder="게임 타이틀 검색..." aria-label="검색어 입력">' +
           '<button type="button" class="search-close" aria-label="닫기">✕</button>' +
         '</div>' +
+        '<div class="search-controls">' +
+          '<div class="search-filter" role="tablist">' +
+            '<button type="button" class="search-filter-btn is-active" data-filter="all">전체</button>' +
+            '<button type="button" class="search-filter-btn" data-filter="타이틀">타이틀</button>' +
+            '<button type="button" class="search-filter-btn" data-filter="DLC">DLC</button>' +
+          '</div>' +
+          '<select class="search-sort" aria-label="정렬 순서">' +
+            '<option value="newest">최신순</option>' +
+            '<option value="oldest">오래된순</option>' +
+            '<option value="name">이름순</option>' +
+          '</select>' +
+        '</div>' +
         '<ul class="search-results"></ul>' +
       '</div>';
     document.body.appendChild(overlay);
 
     var input = overlay.querySelector('input');
     var resultsEl = overlay.querySelector('.search-results');
+    var filterBtns = overlay.querySelectorAll('.search-filter-btn');
+    var sortSelect = overlay.querySelector('.search-sort');
+    var currentFilter = 'all';
+    var currentSort = 'newest';
 
     function renderResults(keyword) {
       var q = keyword.trim().toLowerCase();
       var list = SEARCH_INDEX.filter(function (item) {
-        return !q || (item.title + ' ' + item.desc + ' ' + item.tag).toLowerCase().indexOf(q) !== -1;
+        var matchTag = currentFilter === 'all' || item.tag === currentFilter;
+        var matchKeyword = !q || (item.title + ' ' + item.desc + ' ' + item.tag).toLowerCase().indexOf(q) !== -1;
+        return matchTag && matchKeyword;
+      });
+      list.sort(function (a, b) {
+        /* 전체는 타이틀·DLC 구분 없이 섞어서 정렬 (기본 최신순) */
+        if (currentSort === 'name') return a.title.localeCompare(b.title, 'ko');
+        if (currentSort === 'oldest') return a.year - b.year;
+        return b.year - a.year;
       });
       if (!list.length) {
         resultsEl.innerHTML = '<li class="search-empty">검색 결과가 없습니다. 다른 키워드로 찾아보세요.</li>';
@@ -181,6 +223,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function openSearch(e) {
       if (e) e.preventDefault();
+      currentFilter = 'all';
+      currentSort = 'newest';
+      if (sortSelect) sortSelect.value = 'newest';
+      filterBtns.forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-filter') === 'all'); });
       overlay.classList.add('open');
       renderResults('');
       setTimeout(function () { input.focus(); }, 100);
@@ -188,6 +234,26 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeSearch() {
       overlay.classList.remove('open');
       input.value = '';
+    }
+
+    filterBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        currentFilter = btn.getAttribute('data-filter');
+        filterBtns.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        /* 전체는 항상 타이틀 → DLC, 최신순으로 고정 배치 */
+        if (currentFilter === 'all') {
+          currentSort = 'newest';
+          if (sortSelect) sortSelect.value = 'newest';
+        }
+        renderResults(input.value);
+      });
+    });
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function () {
+        currentSort = sortSelect.value;
+        renderResults(input.value);
+      });
     }
 
     searchBtn.addEventListener('click', openSearch);

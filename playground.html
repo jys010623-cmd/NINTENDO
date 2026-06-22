@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>젤다 인터랙션 실험실 - The Legend of Zelda</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  :root{
+    --gold:#e8c84a; --gold-d:#a9821a; --sheikah:#56d8e6; --orange:#ff7a1a;
+    --slate:#0c1322; --slate2:#121c30; --line:rgba(232,200,74,.22); --ink:#eaf0fb;
+  }
+  body.pg{ background:
+      radial-gradient(1200px 600px at 50% -10%, #1b2a44 0, transparent 60%),
+      radial-gradient(900px 500px at 85% 20%, rgba(86,216,230,.10), transparent 60%),
+      linear-gradient(180deg,#0a0f1c,#0c1322 40%,#0a0f1c);
+    background-attachment:fixed; color:var(--ink); transition:filter .6s ease; }
+  body.pg.night{ filter:brightness(.62) saturate(1.15) hue-rotate(8deg); }
+  .pg-wrap{ max-width:1080px; margin:0 auto; padding:48px 20px 110px; }
+  .pg-head{ text-align:center; margin-bottom:18px; }
+  .pg-head .kicker{ letter-spacing:.32em; font-size:12px; font-weight:800; color:var(--sheikah); text-transform:uppercase; }
+  .pg-head h1{ font-size:40px; font-weight:800; margin-top:10px;
+    background:linear-gradient(180deg,#fff,#cdd7ea); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .pg-head p{ color:#8ea0bf; margin-top:10px; }
+
+  .pg-hud{ position:sticky; top:74px; z-index:50; display:flex; gap:22px; justify-content:center; align-items:center;
+    width:max-content; margin:0 auto 40px; padding:11px 26px; border-radius:999px;
+    background:linear-gradient(180deg,rgba(20,30,52,.92),rgba(12,19,34,.92)); border:1px solid var(--line);
+    box-shadow:0 12px 36px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06); backdrop-filter:blur(8px); }
+  .hud-rupee{ display:flex; align-items:center; gap:9px; font-weight:800; font-size:17px; }
+  .hud-rupee svg{ width:20px; height:24px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
+  .hud-hearts{ display:flex; gap:4px; }
+  .hud-hearts svg{ width:23px; height:23px; transition:transform .25s; filter:drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+
+  .eg{ position:relative; border-radius:22px; padding:34px; margin-bottom:28px;
+    background:linear-gradient(180deg,rgba(20,29,49,.88),rgba(12,19,34,.92));
+    border:1px solid var(--line); box-shadow:0 18px 50px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05); overflow:hidden; }
+  .eg::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.5;
+    background:radial-gradient(600px 200px at 100% 0, rgba(86,216,230,.10), transparent 70%); }
+  .eg .tag{ display:inline-block; font-size:11px; font-weight:800; letter-spacing:.12em; color:var(--gold);
+    border:1px solid var(--line); border-radius:50px; padding:4px 12px; margin-bottom:14px; text-transform:uppercase; }
+  .eg h2{ font-size:22px; font-weight:800; margin-bottom:6px; }
+  .eg .hint{ color:#8ea0bf; font-size:13.5px; margin-bottom:22px; line-height:1.6; }
+  .eg-stage{ display:flex; flex-wrap:wrap; gap:20px; align-items:center; justify-content:center; min-height:150px; }
+
+  .zbtn{ position:relative; border:1px solid var(--line); border-radius:13px; padding:11px 18px; font-weight:700; cursor:pointer;
+    color:var(--ink); background:linear-gradient(180deg,#1a2540,#131d33); transition:all .18s;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
+  .zbtn:hover{ transform:translateY(-2px); border-color:var(--sheikah); color:#cffaff; box-shadow:0 6px 18px rgba(86,216,230,.18); }
+  .zbtn.gold:hover{ border-color:var(--gold); color:#fff7da; box-shadow:0 6px 18px rgba(232,200,74,.2); }
+
+  /* 1. 보물상자 */
+  .chest{ width:170px; cursor:pointer; user-select:none; transition:transform .15s; }
+  .chest:hover{ transform:translateY(-4px); }
+  .chest .lid-g{ transform-box:fill-box; transform-origin:50% 100%; transition:transform .5s cubic-bezier(.2,1.5,.35,1); }
+  .chest.open .lid-g{ transform:translateY(-6px) rotate(-26deg); }
+  .chest .burst{ opacity:0; transform-box:fill-box; transform-origin:center; transition:opacity .4s, transform .5s; }
+  .chest.open .burst{ opacity:1; animation:spin 6s linear infinite; }
+  .chest .item{ opacity:0; transform:translateY(10px) scale(.4); transition:all .5s cubic-bezier(.2,1.7,.4,1); }
+  .chest.open .item{ opacity:1; transform:translateY(-26px) scale(1); }
+  @keyframes spin{ to{ transform:rotate(360deg);} }
+
+  /* 2. 필드 */
+  .field{ display:flex; flex-wrap:wrap; gap:18px; justify-content:center; }
+  .breakable{ width:64px; height:70px; cursor:pointer; transition:transform .1s; }
+  .breakable:active{ transform:scale(.9); }
+  .breakable.broken{ animation:shatter .3s forwards; pointer-events:none; }
+  @keyframes shatter{ to{ transform:scale(.3) rotate(18deg); opacity:0; } }
+  .floater{ position:fixed; z-index:999; pointer-events:none; animation:floatUp 1.05s ease-out forwards; }
+  .floater svg{ width:30px; height:34px; filter:drop-shadow(0 3px 6px rgba(0,0,0,.5)); }
+  @keyframes floatUp{ 0%{ transform:translateY(0) scale(.5); opacity:0; }
+    22%{ opacity:1; transform:translateY(-22px) scale(1.15);} 100%{ transform:translateY(-78px) scale(1); opacity:0; } }
+
+  /* 4. 오카리나 */
+  .oca-col{ display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .oca-btns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+
+  /* 5. 마스터 소드 */
+  .pedestal{ text-align:center; }
+  .sword-svg{ cursor:grab; user-select:none; transition:transform .35s cubic-bezier(.2,1.4,.4,1); }
+  .sword-svg .blade-g{ transform-box:fill-box; transform-origin:50% 100%; transition:transform .4s; }
+  .sword-svg.pulled .blade-g{ transform:translateY(-34px); filter:drop-shadow(0 0 16px var(--sheikah)); }
+  .sword-svg .rays{ opacity:0; transition:opacity .4s; }
+  .sword-svg.pulled .rays{ opacity:1; animation:spin 8s linear infinite; }
+  .gauge{ width:210px; height:11px; background:rgba(255,255,255,.08); border:1px solid var(--line); border-radius:8px; margin:16px auto 0; overflow:hidden; }
+  .gauge > i{ display:block; height:100%; width:0; background:linear-gradient(90deg,var(--sheikah),#bdf6ff); box-shadow:0 0 12px var(--sheikah); }
+
+  /* 6. 던전 */
+  .dungeon{ position:relative; height:230px; border-radius:18px; overflow:hidden; cursor:none;
+    display:flex; align-items:center; justify-content:center; text-align:center; border:1px solid rgba(255,255,255,.06); }
+  .dungeon .brick{ position:absolute; inset:0; background:#0a0e18; }
+  .dungeon .secret-text{ position:relative; z-index:1; font-size:19px; font-weight:800; max-width:66%; line-height:1.7; color:#ffe9c2;
+    text-shadow:0 0 18px rgba(255,150,40,.5); }
+  .dungeon .veil{ position:absolute; inset:0; z-index:2; background:#05070d;
+    -webkit-mask:radial-gradient(circle 95px at var(--mx,50%) var(--my,50%), transparent 0, rgba(0,0,0,.4) 55%, #000 100%);
+    mask:radial-gradient(circle 95px at var(--mx,50%) var(--my,50%), transparent 0, rgba(0,0,0,.4) 55%, #000 100%); }
+  .dungeon .glow{ position:absolute; inset:0; z-index:1; pointer-events:none; mix-blend-mode:screen;
+    background:radial-gradient(circle 130px at var(--mx,50%) var(--my,50%), rgba(255,140,40,.35), transparent 70%); }
+  .torch{ position:absolute; z-index:3; pointer-events:none; transform:translate(-50%,-62%); }
+  .flame .f1{ animation:flick .25s infinite alternate; transform-box:fill-box; transform-origin:50% 100%; }
+  .flame .f2{ animation:flick .18s infinite alternate-reverse; transform-box:fill-box; transform-origin:50% 100%; }
+  @keyframes flick{ to{ transform:scaleY(1.18) scaleX(.92) translateY(-1px); } }
+
+  /* 7. 룬 퍼즐 */
+  .runes{ display:grid; grid-template-columns:repeat(3,72px); gap:12px; justify-content:center; }
+  .rune{ width:72px; height:72px; cursor:pointer; transition:transform .12s; }
+  .rune:active{ transform:scale(.92); }
+  .rune .plate{ fill:#101a2e; stroke:#2a3a58; stroke-width:2; transition:all .25s; }
+  .rune .glyph{ stroke:#3c557d; stroke-width:2.4; fill:none; transition:all .25s; opacity:.6; }
+  .rune.on .plate{ fill:url(#runeOn); stroke:var(--sheikah); }
+  .rune.on .glyph{ stroke:#eafdff; opacity:1; filter:drop-shadow(0 0 6px var(--sheikah)); }
+  .solved-msg{ text-align:center; margin-top:18px; font-weight:800; color:var(--gold); opacity:0; transform:translateY(6px);
+    transition:all .35s; text-shadow:0 0 18px rgba(232,200,74,.45); }
+  .solved-msg.show{ opacity:1; transform:none; }
+
+  .rain{ position:fixed; inset:0; pointer-events:none; z-index:40; opacity:0; transition:opacity .5s;
+    background-image:repeating-linear-gradient(102deg, rgba(180,210,255,.4) 0 1px, transparent 1px 10px);
+    background-size:220px 220px; }
+  .rain.on{ opacity:1; animation:rainmove .45s linear infinite; }
+  @keyframes rainmove{ to{ background-position:70px 220px; } }
+  .back-link{ display:inline-block; margin-top:12px; color:var(--gold); font-weight:700; }
+</style>
+</head>
+<body class="pg">
+
+  <!-- 전역 그라데이션/심볼 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a3"/><stop offset=".5" stop-color="#e8c84a"/><stop offset="1" stop-color="#a9821a"/></linearGradient>
+    <linearGradient id="lid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9803f"/><stop offset="1" stop-color="#7c4f22"/></linearGradient>
+    <linearGradient id="boxw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6531"/><stop offset="1" stop-color="#5e3a1a"/></linearGradient>
+    <linearGradient id="ceramic" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd4c8"/><stop offset="1" stop-color="#2f8e84"/></linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd65a"/><stop offset="1" stop-color="#2f7d3b"/></linearGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaf6ff"/><stop offset=".5" stop-color="#9fb6cf"/><stop offset="1" stop-color="#5c7390"/></linearGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4763"/><stop offset="1" stop-color="#1c2438"/></linearGradient>
+    <linearGradient id="heartG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6b7e"/><stop offset="1" stop-color="#d61026"/></linearGradient>
+    <linearGradient id="rGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9dffb0"/><stop offset="1" stop-color="#1f9d4a"/></linearGradient>
+    <linearGradient id="rBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7e3ff"/><stop offset="1" stop-color="#1f6feb"/></linearGradient>
+    <linearGradient id="rRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb0a7"/><stop offset="1" stop-color="#e0241a"/></linearGradient>
+    <linearGradient id="rPurple" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3b0ff"/><stop offset="1" stop-color="#8a2be2"/></linearGradient>
+    <linearGradient id="rGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1b0"/><stop offset="1" stop-color="#d9a012"/></linearGradient>
+    <radialGradient id="runeOn" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#bdeeff"/><stop offset="1" stop-color="#1f6feb"/></radialGradient>
+    <radialGradient id="burstG" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff6cf"/><stop offset="1" stop-color="rgba(232,200,74,0)"/></radialGradient>
+  </defs></svg>
+
+  <div class="rain" id="rain"></div>
+
+  <div class="pg-wrap">
+    <div class="pg-head">
+      <div class="kicker">Interaction Lab</div>
+      <h1>젤다 인터랙션 실험실</h1>
+      <p>1~7번 게임 요소 데모 — 마음에 드는 걸 골라 사이트에 녹여 드려요</p>
+    </div>
+
+    <div class="pg-hud">
+      <span class="hud-rupee" id="rupeeWrap"></span>
+      <span class="hud-hearts" id="hearts"></span>
+    </div>
+
+    <!-- 1 -->
+    <section class="eg">
+      <span class="tag">01 · Treasure</span>
+      <h2>보물상자 + 아이템 입수</h2>
+      <p class="hint">상자를 클릭하면 “딴~따다단♪” 팡파레와 함께 빛이 터지며 아이템이 떠올라요.</p>
+      <div class="eg-stage">
+        <svg class="chest" id="chest" viewBox="0 0 170 150">
+          <ellipse cx="85" cy="140" rx="62" ry="9" fill="rgba(0,0,0,.45)"/>
+          <circle class="burst" cx="85" cy="78" r="46" fill="url(#burstG)"/>
+          <g class="item" id="itemG"></g>
+          <rect x="24" y="74" width="122" height="58" rx="9" fill="url(#boxw)" stroke="#4a2f15" stroke-width="3"/>
+          <rect x="24" y="92" width="122" height="9" fill="url(#gold)"/>
+          <rect x="74" y="74" width="22" height="58" fill="url(#gold)" opacity=".9"/>
+          <g class="lid-g">
+            <path d="M24 78 Q24 50 85 50 Q146 50 146 78 L146 86 L24 86 Z" fill="url(#lid)" stroke="#4a2f15" stroke-width="3"/>
+            <rect x="74" y="62" width="22" height="24" rx="3" fill="url(#gold)"/>
+            <circle cx="85" cy="84" r="5" fill="#6a4a10"/>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="eg">
+      <span class="tag">02 · Field</span>
+      <h2>풀 베기 · 항아리 깨기</h2>
+      <p class="hint">풀과 항아리를 클릭해 부수면 루피가 튀어나오고 상단 지갑이 올라가요. (가끔 하트도!)</p>
+      <div class="eg-stage"><div class="field" id="field"></div></div>
+    </section>
+
+    <!-- 3 -->
+    <section class="eg">
+      <span class="tag">03 · HUD</span>
+      <h2>하트 컨테이너 체력바</h2>
+      <p class="hint">페이지를 스크롤하면 상단 HUD 하트가 채워집니다. 버튼으로 데미지/회복도 가능.</p>
+      <div class="eg-stage">
+        <button class="zbtn" id="dmgBtn">데미지 받기</button>
+        <button class="zbtn gold" id="healBtn">요정의 회복</button>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="eg">
+      <span class="tag">04 · Ocarina</span>
+      <h2>오카리나 연주</h2>
+      <p class="hint">멜로디를 연주하면 효과 발동 — 폭풍의 노래=비, 시간의 노래=낮↔밤 전환.</p>
+      <div class="eg-stage">
+        <div class="oca-col">
+          <svg width="150" height="92" viewBox="0 0 150 92">
+            <ellipse cx="75" cy="50" rx="66" ry="36" fill="#1c2742" stroke="url(#gold)" stroke-width="2"/>
+            <ellipse cx="52" cy="44" rx="46" ry="24" fill="rgba(86,216,230,.08)"/>
+            <circle cx="52" cy="50" r="6" fill="#0a1120"/><circle cx="72" cy="44" r="6" fill="#0a1120"/>
+            <circle cx="92" cy="46" r="6" fill="#0a1120"/><circle cx="108" cy="56" r="5" fill="#0a1120"/>
+            <rect x="128" y="40" width="18" height="12" rx="4" fill="#1c2742" stroke="url(#gold)" stroke-width="1.5"/>
+          </svg>
+          <div class="oca-btns">
+            <button class="zbtn" data-note="587">▲</button>
+            <button class="zbtn" data-note="440">◀</button>
+            <button class="zbtn" data-note="392">▶</button>
+            <button class="zbtn" data-note="330">▼</button>
+            <button class="zbtn" data-note="494">A</button>
+          </div>
+          <div class="oca-btns">
+            <button class="zbtn" data-melody="storm">폭풍의 노래</button>
+            <button class="zbtn gold" data-melody="time">시간의 노래</button>
+            <button class="zbtn" data-melody="lullaby">젤다의 자장가</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="eg">
+      <span class="tag">05 · Master Sword</span>
+      <h2>마스터 소드 뽑기</h2>
+      <p class="hint">검을 길게 누르세요(hold). 게이지가 다 차면 검이 뽑힙니다.</p>
+      <div class="eg-stage">
+        <div class="pedestal">
+          <svg class="sword-svg" id="sword" width="150" height="200" viewBox="0 0 150 200">
+            <g class="rays"><g stroke="rgba(86,216,230,.5)" stroke-width="3">
+              <line x1="75" y1="20" x2="75" y2="-6"/><line x1="40" y1="40" x2="22" y2="22"/><line x1="110" y1="40" x2="128" y2="22"/>
+              <line x1="30" y1="70" x2="6" y2="64"/><line x1="120" y1="70" x2="144" y2="64"/></g></g>
+            <g class="blade-g">
+              <path d="M75 18 L84 40 L80 120 L75 132 L70 120 L66 40 Z" fill="url(#blade)" stroke="#445a76" stroke-width="1.5"/>
+              <path d="M75 18 L75 132" stroke="#fff" stroke-width="1" opacity=".5"/>
+              <rect x="52" y="120" width="46" height="10" rx="4" fill="url(#gold)"/>
+              <rect x="71" y="128" width="8" height="30" rx="3" fill="#6a4a10"/>
+              <circle cx="75" cy="160" r="7" fill="url(#gold)"/>
+            </g>
+            <path d="M40 150 Q75 138 110 150 L122 196 L28 196 Z" fill="url(#stone)" stroke="#0e1626" stroke-width="2"/>
+            <ellipse cx="75" cy="150" rx="35" ry="8" fill="#0e1626"/>
+          </svg>
+          <div class="gauge"><i id="swordGauge"></i></div>
+          <div id="swordMsg" style="margin-top:12px;font-weight:800;color:var(--sheikah);min-height:20px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="eg">
+      <span class="tag">06 · Dungeon</span>
+      <h2>횃불 던전 탐험</h2>
+      <p class="hint">어두운 던전 위에서 마우스를 움직이면 횃불 빛으로만 내용이 보입니다.</p>
+      <div class="eg-stage" style="display:block;">
+        <div class="dungeon" id="dungeon">
+          <svg class="brick" preserveAspectRatio="xMidYMid slice" viewBox="0 0 600 230">
+            <defs><pattern id="bricks" width="80" height="40" patternUnits="userSpaceOnUse">
+              <rect width="80" height="40" fill="#0c1220"/>
+              <rect x="1" y="1" width="38" height="18" fill="#121a2c" stroke="#1c2740"/>
+              <rect x="41" y="1" width="38" height="18" fill="#10182a" stroke="#1c2740"/>
+              <rect x="-19" y="21" width="38" height="18" fill="#10182a" stroke="#1c2740"/>
+              <rect x="21" y="21" width="38" height="18" fill="#121a2c" stroke="#1c2740"/>
+              <rect x="61" y="21" width="38" height="18" fill="#10182a" stroke="#1c2740"/>
+            </pattern></defs>
+            <rect width="600" height="230" fill="url(#bricks)"/>
+          </svg>
+          <div class="secret-text">“용기를 가진 자여, 어둠 속에서도 길을 잃지 말라.”<br>— 숨겨진 석판</div>
+          <div class="glow"></div>
+          <div class="veil"></div>
+          <div class="torch" id="torch">
+            <svg class="flame" width="44" height="58" viewBox="0 0 44 58">
+              <rect x="19" y="34" width="6" height="22" rx="2" fill="#5a3a1a"/>
+              <path class="f1" d="M22 6 C33 18 33 30 22 40 C11 30 11 18 22 6 Z" fill="#ff7a1a"/>
+              <path class="f2" d="M22 14 C29 22 29 30 22 38 C15 30 15 22 22 14 Z" fill="#ffe06a"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="eg">
+      <span class="tag">07 · Shrine</span>
+      <h2>사당 룬 퍼즐 (라이트 아웃)</h2>
+      <p class="hint">룬을 누르면 자신과 상하좌우가 켜지고/꺼져요. 9칸을 모두 켜면 클리어!</p>
+      <div class="runes" id="runes"></div>
+      <div class="solved-msg" id="solvedMsg">⛩ 사당 클리어! 시커의 가호를 얻었습니다.</div>
+    </section>
+
+    <a class="back-link" href="index.html">← 메인으로 돌아가기</a>
+  </div>
+
+<script>
+(function(){
+  /* ---------- 사운드 ---------- */
+  var AC=null;
+  function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(AC&&AC.state==='suspended')AC.resume(); return AC; }
+  function tone(freq,start,dur,type,vol){ var c=ac(); if(!c)return; var o=c.createOscillator(),g=c.createGain();
+    o.type=type||'triangle'; o.frequency.value=freq; var t=c.currentTime+start;
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.15,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+0.05); }
+  function fanfare(){ [[392,0,.12],[523,.1,.12],[659,.2,.12],[784,.32,.5]].forEach(function(n){ tone(n[0],n[1],n[2],'square',.16); }); }
+  function secret(){ [784,740,622,440,415,659,830,1047].forEach(function(f,i){ tone(f,i*0.13,.16,'triangle',.16); }); }
+  function ping(){ tone(1320,0,.12,'triangle',.18); tone(1760,.04,.12,'triangle',.12); }
+  function shing(){ var c=ac(); if(!c)return; var o=c.createOscillator(),g=c.createGain(); o.type='sawtooth';
+    o.frequency.setValueAtTime(300,c.currentTime); o.frequency.exponentialRampToValueAtTime(1600,c.currentTime+.3);
+    g.gain.setValueAtTime(.2,c.currentTime); g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.4);
+    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+.45); }
+
+  /* ---------- SVG 헬퍼 ---------- */
+  function rupeeSVG(grad){ return '<svg viewBox="0 0 24 30"><path d="M12 1 L21 9 L21 21 L12 29 L3 21 L3 9 Z" fill="url(#'+grad+')" stroke="rgba(255,255,255,.5)" stroke-width="1"/><path d="M12 1 L12 29 M3 9 L21 9 M3 21 L21 21" stroke="rgba(255,255,255,.35)" stroke-width="1" fill="none"/></svg>'; }
+  function heartSVG(filled){ return '<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.6 4.6 0 0 1 8-2.9A4.6 4.6 0 0 1 20 10c0 5.7-8 11-8 11z" fill="'+(filled?'url(#heartG)':'rgba(255,255,255,.12)')+'" stroke="'+(filled?'#9e0d1c':'rgba(255,255,255,.25)')+'" stroke-width="1.2"/>'+(filled?'<path d="M8 8.5c1-1.4 2.6-1.5 3.4-.6" stroke="rgba(255,255,255,.7)" stroke-width="1.3" fill="none" stroke-linecap="round"/>':'')+'</svg>'; }
+
+  /* ---------- HUD ---------- */
+  var rupees=0, rupeeWrap=document.getElementById('rupeeWrap');
+  function drawRupee(){ rupeeWrap.innerHTML=rupeeSVG('rGreen')+'<span>'+rupees+'</span>'; }
+  function addRupee(v){ rupees+=v; drawRupee(); }
+  var HEARTS=5, hp=5, heartsEl=document.getElementById('hearts');
+  function drawHearts(){ var h=''; for(var i=0;i<HEARTS;i++) h+=heartSVG(i<hp); heartsEl.innerHTML=h; }
+  drawRupee(); drawHearts();
+
+  /* ---------- 1. 보물상자 ---------- */
+  var chest=document.getElementById('chest'), itemG=document.getElementById('itemG');
+  var loot=[
+    '<rect x="64" y="64" width="42" height="30" rx="5" fill="url(#rRed)" stroke="#fff" stroke-width="1.5"/>',          /* 방패 느낌 */
+    '<circle cx="85" cy="78" r="16" fill="url(#rGold)" stroke="#fff" stroke-width="1.5"/><circle cx="85" cy="78" r="6" fill="#0a1120"/>', /* 반지 */
+    '<path d="M85 60 L94 86 L85 96 L76 86 Z" fill="url(#blade)" stroke="#fff" stroke-width="1"/>',                       /* 보석 */
+    '<rect x="78" y="62" width="14" height="30" rx="6" fill="url(#rBlue)" stroke="#fff" stroke-width="1.2"/>',           /* 물약 */
+    '<circle cx="85" cy="78" r="15" fill="url(#rPurple)" stroke="#fff" stroke-width="1.5"/>'
+  ];
+  chest.addEventListener('click',function(){
+    chest.classList.remove('open'); void chest.getBoundingClientRect();
+    itemG.innerHTML=loot[Math.floor(Math.random()*loot.length)];
+    chest.classList.add('open'); fanfare();
+  });
+
+  /* ---------- 2. 필드 ---------- */
+  var field=document.getElementById('field');
+  var grassSVG='<svg class="breakable" viewBox="0 0 64 70"><path d="M14 66 C10 40 6 30 4 22 C12 30 16 44 18 60 Z" fill="url(#grass)"/><path d="M32 66 C30 34 30 20 32 6 C36 22 36 44 36 66 Z" fill="url(#grass)"/><path d="M50 66 C54 40 58 30 60 22 C52 30 48 44 46 60 Z" fill="url(#grass)"/></svg>';
+  var potSVG='<svg class="breakable" viewBox="0 0 64 70"><path d="M16 26 Q32 14 48 26 L52 56 Q32 70 12 56 Z" fill="url(#ceramic)" stroke="#1f5d55" stroke-width="2"/><rect x="14" y="20" width="36" height="10" rx="4" fill="#2f8e84" stroke="#1f5d55" stroke-width="2"/><path d="M20 38 H44" stroke="rgba(255,255,255,.4)" stroke-width="3"/></svg>';
+  var layout=[{p:0},{p:0},{p:1},{p:0},{p:1},{p:0}];
+  var rupeeTiers=[['rGreen',1],['rGreen',1],['rBlue',5],['rRed',20],['rPurple',50],['rGold',100]];
+  function floatAt(x,y,html){ var f=document.createElement('div'); f.className='floater'; f.innerHTML=html;
+    f.style.left=x+'px'; f.style.top=y+'px'; document.body.appendChild(f); setTimeout(function(){f.remove();},1050); }
+  layout.forEach(function(it){
+    var holder=document.createElement('div'); holder.innerHTML=it.p?potSVG:grassSVG;
+    var b=holder.firstChild; field.appendChild(b);
+    b.addEventListener('click',function(){
+      if(b.classList.contains('broken'))return;
+      var r=b.getBoundingClientRect();
+      if(it.p && Math.random()<0.3){ floatAt(r.left+12,r.top,heartSVG(true).replace('viewBox','width="30" height="34" viewBox')); if(hp<HEARTS){hp++;drawHearts();} ping(); }
+      else { var t=rupeeTiers[Math.floor(Math.random()*rupeeTiers.length)]; floatAt(r.left+12,r.top,rupeeSVG(t[0])); addRupee(t[1]); ping(); }
+      b.classList.add('broken');
+      setTimeout(function(){ b.classList.remove('broken'); b.style.cssText=''; },1100);
+    });
+  });
+
+  /* ---------- 3. 하트 스크롤/버튼 ---------- */
+  window.addEventListener('scroll',function(){ var max=document.documentElement.scrollHeight-window.innerHeight;
+    var p=max>0?window.scrollY/max:0; hp=Math.max(1,Math.round(p*HEARTS)); drawHearts(); },{passive:true});
+  document.getElementById('dmgBtn').addEventListener('click',function(){ if(hp>0){hp--;drawHearts(); tone(150,0,.22,'sawtooth',.2);} });
+  document.getElementById('healBtn').addEventListener('click',function(){ if(hp<HEARTS){hp++;drawHearts(); ping();} });
+
+  /* ---------- 4. 오카리나 ---------- */
+  document.querySelectorAll('[data-note]').forEach(function(b){ b.addEventListener('click',function(){ tone(parseFloat(b.dataset.note),0,.45,'sine',.2); }); });
+  var rain=document.getElementById('rain');
+  function melody(seq,cb){ seq.forEach(function(f,i){ tone(f,i*0.28,.3,'sine',.2); }); if(cb)setTimeout(cb,seq.length*280+150); }
+  document.querySelectorAll('[data-melody]').forEach(function(b){ b.addEventListener('click',function(){
+    var m=b.dataset.melody;
+    if(m==='storm') melody([587,440,330,587,440,330],function(){ rain.classList.toggle('on'); });
+    else if(m==='time') melody([440,587,494],function(){ document.body.classList.toggle('night'); });
+    else melody([494,392,330,392,494,587]);
+  }); });
+
+  /* ---------- 5. 마스터 소드 ---------- */
+  var sword=document.getElementById('sword'), gauge=document.getElementById('swordGauge'), sMsg=document.getElementById('swordMsg');
+  var holding=false, prog=0;
+  function loop(){ if(!holding)return; prog=Math.min(1,prog+0.017); gauge.style.width=(prog*100)+'%';
+    if(prog>=1){ holding=false; sword.classList.add('pulled'); shing(); sMsg.textContent='마스터 소드를 뽑았다!'; setTimeout(fanfare,200); return; }
+    requestAnimationFrame(loop); }
+  function start(e){ e.preventDefault(); if(sword.classList.contains('pulled'))return; holding=true; loop(); }
+  function end(){ if(sword.classList.contains('pulled'))return; holding=false; prog=0; gauge.style.width='0'; }
+  sword.addEventListener('mousedown',start); sword.addEventListener('touchstart',start,{passive:false});
+  window.addEventListener('mouseup',end); window.addEventListener('touchend',end);
+  sword.addEventListener('click',function(){ if(sword.classList.contains('pulled')){ sword.classList.remove('pulled'); prog=0; gauge.style.width='0'; sMsg.textContent=''; } });
+
+  /* ---------- 6. 던전 ---------- */
+  var dg=document.getElementById('dungeon'), torch=document.getElementById('torch');
+  dg.addEventListener('mousemove',function(e){ var r=dg.getBoundingClientRect(); var x=e.clientX-r.left,y=e.clientY-r.top;
+    dg.style.setProperty('--mx',x+'px'); dg.style.setProperty('--my',y+'px'); torch.style.left=x+'px'; torch.style.top=y+'px'; });
+
+  /* ---------- 7. 룬 퍼즐 ---------- */
+  var runesEl=document.getElementById('runes'), solvedMsg=document.getElementById('solvedMsg');
+  var glyphs=['M20 52 L36 14 L52 52 M28 40 H44','M22 22 H50 V50 H22 Z M36 22 V50','M36 14 V58 M20 30 L36 14 L52 30','M22 36 A14 14 0 1 1 50 36 A14 14 0 1 1 22 36','M20 20 L52 52 M52 20 L20 52','M36 16 L52 36 L36 56 L20 36 Z','M20 50 Q36 18 52 50 M36 32 V50','M22 24 H50 M36 24 V52 M24 52 H48','M36 14 L44 34 L36 30 L28 34 Z M36 34 V56'];
+  var state=[false,false,false,false,false,false,false,false,false];
+  function draw(){ runesEl.innerHTML=''; state.forEach(function(on,i){
+    var s=document.createElementNS('http://www.w3.org/2000/svg','svg'); s.setAttribute('class','rune'+(on?' on':'')); s.setAttribute('viewBox','0 0 72 72');
+    s.innerHTML='<rect class="plate" x="4" y="4" width="64" height="64" rx="14"/><path class="glyph" d="'+glyphs[i]+'"/>';
+    s.addEventListener('click',function(){ toggle(i); }); runesEl.appendChild(s); }); }
+  function flip(i){ var r=Math.floor(i/3),c=i%3; [[r,c],[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(function(p){
+    if(p[0]>=0&&p[0]<3&&p[1]>=0&&p[1]<3) state[p[0]*3+p[1]]=!state[p[0]*3+p[1]]; }); }
+  function toggle(i){ flip(i); tone(660,0,.1,'triangle',.14); draw(); check(); }
+  function check(){ if(state.every(function(s){return s;})){ solvedMsg.classList.add('show'); secret(); } else solvedMsg.classList.remove('show'); }
+  [0,4,8,2,6].forEach(flip); draw();
+})();
+</script>
+</body>
+</html>

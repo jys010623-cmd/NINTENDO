@@ -1264,6 +1264,8 @@ a {
 .news-list {
   list-style: none;
   border-top: 2px solid #0f172a;
+  max-width: 1080px;
+  margin: 0 auto;
 }
 
 .news-list li {
@@ -1386,8 +1388,8 @@ a {
   z-index: 2000;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 120px 20px 40px;
+  align-items: center;
+  padding: 40px 20px;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.25s ease, visibility 0.25s ease;
@@ -1454,6 +1456,67 @@ a {
   color: #ffffff;
 }
 
+.search-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.search-filter {
+  display: flex;
+  gap: 8px;
+}
+
+.search-sort {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  padding: 7px 32px 7px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.search-sort:hover,
+.search-sort:focus {
+  border-color: #E60012;
+  color: #0f172a;
+}
+
+.search-filter-btn {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  padding: 7px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-filter-btn:hover {
+  border-color: #E60012;
+  color: #E60012;
+}
+
+.search-filter-btn.is-active {
+  background: #E60012;
+  border-color: #E60012;
+  color: #ffffff;
+}
+
 .search-results {
   list-style: none;
   margin-top: 12px;
@@ -1476,9 +1539,11 @@ a {
 
 .search-tag {
   flex-shrink: 0;
+  width: 52px;
+  text-align: center;
   font-size: 11px;
   font-weight: 800;
-  padding: 3px 10px;
+  padding: 3px 0;
   border-radius: 50px;
   color: #E60012;
   border: 1px solid #fecaca;
@@ -2013,4 +2078,19 @@ a {
   }
   .node-dot { margin: 0 auto 12px; }
   .timeline-node { padding: 0; }
+}
+/* ==========================================================================
+   서브 페이지(푸터 연결 페이지) 본문 가운데 정렬
+   ========================================================================== */
+.subpage .faq-answer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px;
+  text-align: center;
+}
+.subpage .faq-answer p {
+  margin: 0 0 18px;
+}
+.subpage .faq-answer p:last-child {
+  margin-bottom: 0;
 }
