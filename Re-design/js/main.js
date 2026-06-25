@@ -115,6 +115,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* 5. 사이트 검색 — 검색 아이콘 클릭 시 오버레이 */
+  /* 현재 페이지가 sub/ 폴더 안인지에 따라 검색결과 링크 경로 보정 */
+  var IN_SUB = /\/sub\//.test(location.pathname);
+  function resolveUrl(u) {
+    if (u.indexOf('index.html') === 0) return IN_SUB ? '../' + u : u;
+    /* detail.html 등 서브페이지 */
+    return IN_SUB ? u : 'sub/' + u;
+  }
   var SEARCH_INDEX = [
     /* 본편 타이틀 */
     { tag: '타이틀', year: 1986, title: '젤다의 전설', desc: '1986 · 패미컴 — 시리즈의 위대한 시작', url: 'index.html#history' },
@@ -213,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
       resultsEl.innerHTML = list.map(function (item) {
-        return '<li><a href="' + item.url + '">' +
+        return '<li><a href="' + resolveUrl(item.url) + '">' +
           '<span class="search-tag">' + item.tag + '</span>' +
           '<span><span class="sr-title">' + item.title + '</span>' +
           '<span class="sr-desc">' + item.desc + '</span></span>' +
